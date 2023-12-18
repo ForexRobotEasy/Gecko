@@ -1,0 +1,69 @@
+
+//+------------------------------------------------------------------+
+//|                                                 Gecko.mq5        |
+//|                                 Copyright 2022, Forex Robot Easy Team    |
+//|                                      https://www.forexroboteasy.com    |
+//+------------------------------------------------------------------+
+
+//+------------------------------------------------------------------+
+//| Include necessary libraries                                      |
+//+------------------------------------------------------------------+
+#include <Trade\Trade.mqh>
+
+//+------------------------------------------------------------------+
+//| Global variables                                                 |
+//+------------------------------------------------------------------+
+CTrade Trade;
+
+//+------------------------------------------------------------------+
+//| Expert initialization function                                   |
+//+------------------------------------------------------------------+
+int OnInit()
+{
+    // Initialize trade settings
+    Trade.SetExpertMagicNumber(123456);
+    Trade.SetTrailingStopMode(true);
+    Trade.SetTrailingStopParameters(50, 10);
+
+    return(INIT_SUCCEEDED);
+}
+
+//+------------------------------------------------------------------+
+//| Expert deinitialization function                                 |
+//+------------------------------------------------------------------+
+void OnDeinit(const int reason)
+{
+    // Deinitialize trade settings
+    Trade.SetExpertMagicNumber(0);
+    Trade.SetTrailingStopMode(false);
+}
+
+//+------------------------------------------------------------------+
+//| Expert start function                                            |
+//+------------------------------------------------------------------+
+void OnTick()
+{
+    // Check for breakout opportunities
+    double recentHigh = iHigh(Symbol(), PERIOD_D1, 0);
+    double recentLow = iLow(Symbol(), PERIOD_D1, 0);
+
+    if (Bid > recentHigh)
+    {
+        // Execute buy trade
+        Trade.Buy(Symbol(), 0.1, Ask, Ask - 100 * SymbolInfoDouble(Symbol(), SYMBOL_POINT), 'Breakout Buy', 0);
+    }
+    else if (Ask < recentLow)
+    {
+        // Execute sell trade
+        Trade.Sell(Symbol(), 0.1, Bid, Bid + 100 * SymbolInfoDouble(Symbol(), SYMBOL_POINT), 'Breakout Sell', 0);
+    }
+}
+
+//+------------------------------------------------------------------+
+//| Expert stop function                                             |
+//+------------------------------------------------------------------+
+void OnStop()
+{
+    // Close all open trades
+    Trade.CloseAll();
+}
